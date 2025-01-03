@@ -35,30 +35,23 @@ def gpt_endpoint():
 
         prompt = data["prompt"]
 
-        # Call OpenAI GPT API
-        response = openai.Completion.create(
-            model="text-davinci-003",  # Or "gpt-3.5-turbo" depending on your usage
-            prompt=prompt,
+        # Call OpenAI GPT API using the chat/completions endpoint
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[{"role": "user", "content": prompt}],
             max_tokens=500,
             temperature=0.7
         )
 
         # Extract and return response
-        gpt_response = response.choices[0].text.strip()
+        gpt_response = response["choices"][0]["message"]["content"].strip()
         return jsonify({"response": gpt_response})
 
     except openai.error.OpenAIError as e:
-        # Log OpenAI API-specific errors
-        app.logger.error(f"OpenAI API Error: {str(e)}")
-        return jsonify({"error": f"OpenAI API Error: {str(e)}"}), 500
-
+        return jsonify({"error": str(e)}), 500
     except Exception as e:
-        # Log any unexpected errors
-        app.logger.error(f"Unexpected Error: {str(e)}")
         return jsonify({"error": "An unexpected error occurred.", "details": str(e)}), 500
 
 if __name__ == "__main__":
-    # Specify the port and host for Flask app
     port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
-
+    app.run(host="0.0.0.0", port=port, debug=True)
