@@ -3,7 +3,7 @@ import openai
 import os
 from dotenv import load_dotenv
 
-# Load environment variables from .env file
+# Load environment variables
 load_dotenv()
 
 app = Flask(__name__)
@@ -25,13 +25,14 @@ def index():
 @app.route("/api/gpt", methods=["POST"])
 def gpt_endpoint():
     try:
+        # Get JSON data from request
         data = request.get_json()
         if not data or "prompt" not in data:
             return jsonify({"error": "Invalid request. 'prompt' is required."}), 400
 
         prompt = data["prompt"]
 
-        # Make a call to OpenAI API
+        # Make OpenAI API call
         response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             messages=[{"role": "user", "content": prompt}],
@@ -39,7 +40,7 @@ def gpt_endpoint():
             temperature=0.7,
         )
 
-        # Extract response content
+        # Extract response
         gpt_response = response["choices"][0]["message"]["content"].strip()
         return jsonify({"response": gpt_response})
 
